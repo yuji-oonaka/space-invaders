@@ -294,3 +294,32 @@ code {
     border-right-color: var(--border);
   }
 }
+
+/* src/style.css */
+:root {
+  background-color: #000;
+  color: #fff;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  /* スクロール禁止 */
+  touch-action: none;
+  /* ブラウザのデフォルトジェスチャーを無効化 */
+  -webkit-user-select: none;
+  /* テキスト選択禁止 */
+  user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+canvas {
+  display: block;
+  background-color: #000;
+  image-rendering: pixelated;
+  /* ドット絵を鮮明に表示 */
+}
