@@ -74,7 +74,11 @@ export class Game {
   }
 
   private render(): void {
-    // ...背景クリア処理
+    // 🌟 画面全体を黒で塗りつぶして、前のフレームの描画をリセットする
+    this.ctx.fillStyle = '#000';
+    this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // エンティティ（鬼など）を新しい位置に描画
     this.entities.forEach(e => e.render(this.ctx));
   }
 }
