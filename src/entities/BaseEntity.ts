@@ -1,8 +1,6 @@
 // src/entities/BaseEntity.ts
 export abstract class BaseEntity {
   public isDead: boolean = false;
-
-  // 🌟 プロパティを明示的に宣言
   public x: number;
   public y: number;
   public width: number;
@@ -16,7 +14,6 @@ export abstract class BaseEntity {
     height: number,
     speed: number
   ) {
-    // 🌟 愚直に代入する形に変更
     this.x = x;
     this.y = y;
     this.width = width;
@@ -30,5 +27,12 @@ export abstract class BaseEntity {
 
   abstract render(ctx: CanvasRenderingContext2D): void;
   
-  abstract checkHit(inputX: number, inputY: number, type: 'TAP' | 'SWIPE'): boolean;
+  // 🌟 引数に startX, startY を追加して、Ghostがスワイプ座標を受け取れるようにする
+  abstract checkHit(
+    inputX: number, 
+    inputY: number, 
+    type: 'TAP' | 'SWIPE', 
+    startX?: number, 
+    startY?: number
+  ): boolean;
 }
