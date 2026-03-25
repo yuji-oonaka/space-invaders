@@ -1,49 +1,63 @@
-import { SWIPE_THRESHOLD, SWIPE_TIME_LIMIT, GAME_WIDTH } from '../constants';
+import { GAME_WIDTH } from '../constants';
 
 export type InputType = 'TAP' | 'SWIPE' | 'NONE';
 
+export type InputAction = { 
+  type: InputType, 
+  x: number, 
+  y: number, 
+  startX?: number, 
+  startY?: number 
+};
+
 export class InputHandler {
   public shipX: number = GAME_WIDTH / 2;
-  private startX: number = 0;
-  private startY: number = 0;
-  private startTime: number = 0;
+  private isDown: boolean = false;
+  private lastX: number = 0;
+  private lastY: number = 0;
   
-  // 外部（Gameクラス等）から読み取るための最新のアクション
-  public lastAction: { type: InputType, x: number, y: number } = { type: 'NONE', x: 0, y: 0 };
+  // 🌟 配列にして、1フレームに発生した複数のアクション（連続スワイプ等）を保持できるようにする
+  public actions: InputAction[] = [];
 
   constructor(canvas: HTMLCanvasElement) {
     canvas.addEventListener('pointerdown', this.handlePointerDown.bind(this));
     canvas.addEventListener('pointermove', this.handlePointerMove.bind(this));
-    canvas.addEventListener('pointerup', this.handlePointerUp.bind(this));
+    window.addEventListener('pointerup', () => { this.isDown = false; });
   }
 
   private handlePointerDown(e: PointerEvent): void {
-    this.startX = e.offsetX;
-    this.startY = e.offsetY;
-    this.startTime = performance.now();
-    this.shipX = e.offsetX; // タップした瞬間に船がその位置へ
+    this.isDown = true;
+    this.lastX = e.offsetX;
+    this.lastY = e.offsetY;
+    this.shipX = e.offsetX;
+
+    // 🌟 押した瞬間に TAP 判定を発生させる
+    this.actions.push({ type: 'TAP', x: e.offsetX, y: e.offsetY });
   }
 
   private handlePointerMove(e: PointerEvent): void {
-    this.shipX = e.offsetX; // スライド中は常に船が追従
-  }
+    this.shipX = e.offsetX;
+    if (!this.isDown) return;
 
-  private handlePointerUp(e: PointerEvent): void {
-    const endX = e.offsetX;
-    const endY = e.offsetY;
-    const duration = performance.now() - this.startTime;
-    const dist = Math.hypot(endX - this.startX, endY - this.startY);
-
-    if (dist > SWIPE_THRESHOLD && duration < SWIPE_TIME_LIMIT) {
-      this.lastAction = { type: 'SWIPE', x: endX, y: endY };
-    } else {
-      this.lastAction = { type: 'TAP', x: endX, y: endY };
-    }
+    const dist = Math.hypot(e.offsetX - this.lastX, e.offsetY - this.lastY);
     
-    // 判定消費用のフラグセット（後ほどGameループでリセット）
+    // 🌟 5px以上動いたら「斬撃セグメント」として判定
+    if (dist > 5) {
+      this.actions.push({ 
+        type: 'SWIPE', 
+        x: e.offsetX, 
+        y: e.offsetY, 
+        startX: this.lastX, 
+        startY: this.lastY 
+      });
+      this.lastX = e.offsetX;
+      this.lastY = e.offsetY;
+    }
   }
 
-  public consumeAction(): void {
-    this.lastAction = { type: 'NONE', x: 0, y: 0 };
+  public consumeActions(): InputAction[] {
+    const currentActions = [...this.actions];
+    this.actions = [];
+    return currentActions;
   }
 }
