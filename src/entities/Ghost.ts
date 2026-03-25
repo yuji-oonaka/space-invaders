@@ -22,11 +22,16 @@ export class Ghost extends BaseEntity {
   }
 
   public checkHit(inputX: number, inputY: number, type: 'TAP' | 'SWIPE', startX?: number, startY?: number): boolean {
-    // 🌟 ゴーストはスワイプ以外は受け付けない
     if (type !== 'SWIPE') return false;
 
-    // スワイプの軌道（線分）とゴースト（矩形）の交差判定を実行
     if (startX !== undefined && startY !== undefined) {
+      // 🌟 追加：横方向へのスワイプ距離を計算
+      const horizontalDist = Math.abs(inputX - startX);
+      
+      // 🌟 横に 25px 以上動いていないスワイプは「斬撃」と認めない（ズバッ！じゃない）
+      if (horizontalDist < 25) return false;
+
+      // 軌道と矩形の交差判定
       return lineRectIntersect(
         startX, startY, inputX, inputY,
         this.x, this.y, this.width, this.height

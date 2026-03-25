@@ -58,12 +58,13 @@ export class InputHandler {
     if (!this.isDown) return;
 
     if (this.isDraggingShip) {
-      // 🌟 船を掴んでいる場合は船だけ動かす（攻撃は発生させない）
       this.shipX = e.offsetX;
     } else {
-      // 🌟 船を掴んでいない場合は攻撃（SWIPE）を発生させる
       const dist = Math.hypot(e.offsetX - this.lastX, e.offsetY - this.lastY);
-      if (dist > 5) {
+      
+      // 🌟 5px から 30px へ引き上げ
+      // これにより、ある程度「シュッ」と動かさないとスワイプ判定が出なくなります
+      if (dist > 30) { 
         this.actions.push({ 
           type: 'SWIPE', 
           x: e.offsetX, 

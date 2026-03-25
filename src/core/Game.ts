@@ -67,6 +67,7 @@ export class Game {
    * 状態更新ロジック
    */
   private update(): void {
+    if (this.entityManager.scoreSystem.isGameOver) return;
     // 溜まった全アクションを取得
     const actions = this.input.consumeActions();
     
