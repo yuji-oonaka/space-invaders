@@ -84,7 +84,7 @@ export class Game {
     });
 
     // 定数 TICK_RATE（16.6ms相当）を渡して更新
-    this.entityManager.update(TICK_RATE);
+    this.entityManager.update(TICK_RATE, this.input.shipX);
   }
 
   /**
