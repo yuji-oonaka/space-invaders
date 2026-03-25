@@ -11,13 +11,16 @@ import { EffectSystem } from './EffectSystem'; // 🌟 追加
 import { COLOR } from '../constants';
 import { Ship } from '../entities/Ship';
 import { Ally } from '../entities/Ally'; // 🌟 追加
-import { SPAWN_CHANCE_ALLY} from '../constants'; // 🌟 追加
+import { SPAWN_CHANCE_ALLY } from '../constants'; // 🌟 追加
+import { ScoreSystem } from './ScoreSystem'; // 🌟 追加
+import { SCORE } from '../constants'; // 🌟 追加
 
 export class EntityManager {
   private entities: BaseEntity[] = [];
   private ship: Ship = new Ship(); // 🌟 船をインスタンス化
   private spawnTimer: number = 0;
   private effectSystem: EffectSystem = new EffectSystem();
+  public scoreSystem: ScoreSystem = new ScoreSystem();
 
   // 🌟 引数に shipX を追加
   public update(deltaTime: number, shipX: number): void {
@@ -29,27 +32,16 @@ export class EntityManager {
     }
 
     this.ship.update(shipX);
-    this.effectSystem.update();
-
     this.entities.forEach(e => {
       e.update();
-
-      // 🌟 味方のキャッチ判定（Ship vs Ally）
-      if (e instanceof Ally && !e.isDead) {
-        if (
-          e.x < this.ship.x + this.ship.width &&
-          e.x + e.width > this.ship.x &&
-          e.y < this.ship.y + this.ship.height &&
-          e.y + e.height > this.ship.y
-        ) {
-          e.isDead = true;
-          // キャッチ成功エフェクト
-          this.effectSystem.createExplosion(e.x + e.width/2, e.y + e.height/2, '#FFFFFF', 20);
-          console.log("CATCH SUCCESS!");
-        }
+      // キャッチ判定
+      if (e instanceof Ally && !e.isDead && this.checkShipCollision(e)) {
+        e.isDead = true;
+        this.scoreSystem.addScore(SCORE.ALLY_CATCH); // 🌟 加点
+        this.effectSystem.createExplosion(e.x + e.width/2, e.y + e.height/2, '#FFFFFF', 20);
       }
     });
-
+    this.effectSystem.update();
     this.entities = this.entities.filter(e => !e.isDead && e.y < GAME_HEIGHT);
   }
 
@@ -57,42 +49,44 @@ export class EntityManager {
     this.ship.render(ctx); // 🌟 船の描画（敵より先に描くか後に描くかはお好みで）
     this.entities.forEach(e => e.render(ctx));
     this.effectSystem.render(ctx);
+    this.scoreSystem.render(ctx);
   }
 
   public handleInput(x: number, y: number, type: 'TAP' | 'SWIPE', startX?: number, startY?: number): void {
-    // 🌟 空振りでもエフェクトを出す（視覚的フィードバック）
+    // 1. 空振りでもエフェクトを出す（視覚的フィードバック）
     if (type === 'TAP') {
       this.effectSystem.createExplosion(x, y, '#444444', 3); // 弱い波紋
     } else if (type === 'SWIPE' && startX !== undefined && startY !== undefined) {
       this.effectSystem.createSlash(startX, startY, x, y);
     }
 
+    // 2. エンティティ判定（ループは1回にまとめます）
     this.entities.forEach(entity => {
+      // 🌟 【重要】すでに死亡フラグが立っている場合は無視する（二重カウント防止）
+      if (entity.isDead) return;
+
       if (entity.checkHit(x, y, type, startX, startY)) {
-        entity.isDead = true;
-        
-        // 撃破時は派手なエフェクト
-        const color = entity instanceof Oni ? COLOR.ONI : COLOR.GHOST;
-        this.effectSystem.createExplosion(
-          entity.x + entity.width / 2, 
-          entity.y + entity.height / 2, 
-          color,
-          15
-        );
-      }
-    });
-    this.entities.forEach(entity => {
-      if (entity.checkHit(x, y, type, startX, startY)) {
-        entity.isDead = true;
+        entity.isDead = true; // ここで即座にフラグを立てる
         
         if (entity instanceof Ally) {
-          // 🌟 味方を攻撃してしまった（ミス）
-          this.effectSystem.createExplosion(entity.x + entity.width/2, entity.y + entity.height/2, '#666666', 5);
-          console.log("ALLY KILL... MISTAKE!");
+          // --- 味方を叩いた時の処理 ---
+          this.scoreSystem.resetCombo();
+          this.scoreSystem.score += SCORE.ALLY_MISTAKE;
+          // ミス用エフェクト（灰色）
+          this.effectSystem.createExplosion(entity.x + entity.width/2, entity.y + entity.height/2, '#666666', 8);
         } else {
-          // 敵を倒した
+          // --- 敵を倒した時の処理 ---
+          const points = entity instanceof Oni ? SCORE.ONI : SCORE.GHOST;
+          this.scoreSystem.addScore(points);
+          
+          // 撃破エフェクト（鬼なら赤、幽霊なら紫）
           const color = entity instanceof Oni ? COLOR.ONI : COLOR.GHOST;
-          this.effectSystem.createExplosion(entity.x + entity.width/2, entity.y + entity.height/2, color, 15);
+          this.effectSystem.createExplosion(
+            entity.x + entity.width / 2, 
+            entity.y + entity.height / 2, 
+            color,
+            15
+          );
         }
       }
     });
@@ -110,5 +104,14 @@ export class EntityManager {
     } else {
       this.entities.push(new Oni(x, 2));
     }
+  }
+
+  private checkShipCollision(e: BaseEntity): boolean {
+    return (
+      e.x < this.ship.x + this.ship.width &&
+      e.x + e.width > this.ship.x &&
+      e.y < this.ship.y + this.ship.height &&
+      e.y + e.height > this.ship.y
+    );
   }
 }

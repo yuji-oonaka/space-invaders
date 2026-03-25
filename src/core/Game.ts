@@ -91,11 +91,20 @@ export class Game {
    * 描画ロジック
    */
   private render(): void {
-    // 1. 背景のクリア（残像防止）
-    this.ctx.fillStyle = '#000';
+    // 1. 全体の背景色
+    this.ctx.fillStyle = '#1a1a2e'; 
     this.ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
-    // 2. エンティティ全体の描画を委譲
+    // 2. プレイエリア（フィールド）の背景
+    this.ctx.fillStyle = '#000000';
+    this.ctx.fillRect(10, 80, GAME_WIDTH - 20, GAME_HEIGHT - 90);
+    
+    // 3. フィールドの枠線
+    this.ctx.strokeStyle = '#FFFFFF';
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeRect(10, 80, GAME_WIDTH - 20, GAME_HEIGHT - 90);
+
+    // 4. エンティティとUIの描画
     this.entityManager.render(this.ctx);
   }
 }

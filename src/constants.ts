@@ -32,3 +32,17 @@ export const COLOR = {
 
 export const GHOST_SPEED_BASE = 1.5; // 鬼より少しゆっくり、または速くしてリズムをずらす
 export const SPAWN_CHANCE_GHOST = 0.3; // 30%の確率で幽霊が出現
+
+export const SCORE = {
+  ONI: 100,
+  GHOST: 200,
+  ALLY_CATCH: 500,
+  ALLY_MISTAKE: -1000, // 味方を叩いた時のペナルティ
+} as const;
+
+export const COMBO_TIME_LIMIT = 2000; // 2秒以内に次を倒せばコンボ継続
+
+export const UI_TOP_HEIGHT = 80;    // 上部スコアエリアの高さ
+export const FIELD_PADDING = 10;   // 左右の隙間
+export const COLOR_UI_BG = '#1a1a2e'; // 濃い紺色（メジャーゲームっぽい色）
+export const COLOR_FIELD_BG = '#000000'; // プレイエリアは黒
