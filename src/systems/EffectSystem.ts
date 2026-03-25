@@ -17,7 +17,12 @@ interface Slash {
 
 export class EffectSystem {
   private particles: Particle[] = [];
-  private slashes: Slash[] = []; // 🌟 追加
+  private slashes: Slash[] = [];
+  private flashAlpha: number = 0;
+
+  public triggerFlash(): void {
+    this.flashAlpha = 1.0;
+  }
 
   // 🌟 斬撃エフェクトを生成するメソッドを追加
   public createSlash(x1: number, y1: number, x2: number, y2: number): void {
@@ -56,6 +61,10 @@ export class EffectSystem {
       s.alpha -= 0.1; // 徐々に消える
     });
     this.slashes = this.slashes.filter(s => s.alpha > 0);
+
+    if (this.flashAlpha > 0) {
+      this.flashAlpha -= 0.1;
+    }
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
@@ -79,6 +88,14 @@ export class EffectSystem {
     });
 
     ctx.globalAlpha = 1.0;
+
+    if (this.flashAlpha > 0) {
+      ctx.save();
+      ctx.globalAlpha = this.flashAlpha * 0.5; // 最大でも50%程度の濃さにする
+      ctx.fillStyle = '#FF0000';
+      ctx.fillRect(0, 0, 360, 640); // 画面全体
+      ctx.restore();
+    }
   }
 }
 

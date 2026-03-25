@@ -11,8 +11,8 @@ export const SWIPE_TIME_LIMIT = 500; // 300ms以内ならスワイプとみな�
 export const SLASH_DURATION = 200;
 
 // エンティティ設定
-export const ONI_SIZE = 50;
-export const GHOST_SIZE = 50;
+export const ONI_SIZE = 40;
+export const GHOST_SIZE = 40;
 export const ALLY_SIZE = 30;
 export const SPAWN_CHANCE_ALLY = 0.15; // 15%の確率で出現
 export const COLOR_ALLY = '#FFFF00';
@@ -46,3 +46,9 @@ export const UI_TOP_HEIGHT = 80;    // 上部スコアエリアの高さ
 export const FIELD_PADDING = 10;   // 左右の隙間
 export const COLOR_UI_BG = '#1a1a2e'; // 濃い紺色（メジャーゲームっぽい色）
 export const COLOR_FIELD_BG = '#000000'; // プレイエリアは黒
+
+export const INITIAL_LIVES = 3;      // 初期ライフ
+export const COLOR_LIFE = '#FF4444'; // ライフ（ハート）の色
+
+export const COLOR_FLASH = 'rgba(255, 0, 0, 0.5)'; // 透明度50%の赤
+export const FLASH_DURATION = 10; // フレーム数（約0.15秒）
