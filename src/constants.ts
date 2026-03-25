@@ -13,9 +13,12 @@ export const SLASH_DURATION = 200;
 // エンティティ設定
 export const ONI_SIZE = 50;
 export const GHOST_SIZE = 50;
-export const ALLY_SIZE = 40;
-export const SHIP_WIDTH = 80;
-export const SHIP_HEIGHT = 20;
+export const ALLY_SIZE = 30;
+export const SPAWN_CHANCE_ALLY = 0.15; // 15%の確率で出現
+export const COLOR_ALLY = '#FFFF00';
+export const SHIP_WIDTH = 60;
+export const SHIP_HEIGHT = 15;
+export const SHIP_Y_POS = GAME_HEIGHT - 60;
 
 export const SPAWN_INTERVAL = 1000;
 
